@@ -67,3 +67,40 @@ Programa: Conjunto ordenado de instrucciones que resuelven una tarea.
 Compiladores: Las herramientas que se encargan de la traduccion de un lenguaje de alto nivel a un lenguaje de bajo nivel. 
 
 Interpretes: Herramientas que se encargan de la traduccion de sentencias de un lenguaje de alto nivel a bajo nivel en tiempo de ejecucion
+
+### Assembler
+Assebly surge como un lenguaje de bajo nivel con el objetivo de simplificar el trabajo con largas secuencias binarias a la hora de programar. Es importante mencionar que cada procesador tiene su propio assembler.
+
+## Unidad Central de Procesamiento - CPU
+Las funciones que cumple la CPU son:
+1. Tratamiento de instrucciones: La unidad dentro de la CPU especializada para esto que es la unidad de control (**CU**) que se sincorniza con el clock.
+2. Operaciones de los datos: La unidad dentro de la CPU especializada en esta tarea es la unidad aritmetico logica (**ALU**)
+3. Calculo de direcciones de memoria: La unidad especializada en esta tarea es la unidad de manejo de memoria (**MMU**)
+
+### Comunicacion con la Memoria Principal
+La memoria principal esta conctada con la CPU atraves de tres busses:
+1. **Bus de datos**: Es un camino bidirecional que permite la tranferencia de un grupo de bits desde o hacia la MP.
+2. **Bus de direcciones**: Permite la comunicacion entre la MMU y la MP.
+3. **Bus de control**: Permite enviar ordenes de lectura o de escritura hacia la memoria principal.
+
+![alt text](image.png)
+
+### Direccionamiento de la Memoria en Modo Real
+Para poder acceder a un dato, es necesario tener la direccion fisica. Para lograr el objetivo de obtener la direccion fisica se debe realizar un calculo con la base del segmento y el desplazamiento. 
+Direccion Fisica = Base del segmento x 10h + Desplazamiento
+
+## Intrucciones basicas en assembly 
+#### **MOV**
+Permite la transferencia de datos de memoria, registros y acumulador.
+
+Sintaxis: MOV (Destino), (Origen)
+#### **ADD**
+Suma dos operandos y guarda el resultado en el operando destino.
+
+Sintaxis: ADD (Destino), (Origen)
+## Ciclo de instruccion
+El ciclo de instruccion se puede dividir en las etapas siguientes:
+1. Busqueda de la instruccion en memoria. (**BI**)
+2. Interpretacion del codigo de la instruccion. (**DEC**)
+3. Busqueda del datos u operando afectado por la instruccion. (**BO**)
+4. Generacion de ordenes al modulo que opera ese dato y actualizacion del IP. (**EJEC**)
