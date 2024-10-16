@@ -94,3 +94,43 @@ Descripcion de bits:
 16. ID: Bit de indentificacion. Informa si el procesador soporta la instruccion CPUID que sirve para su identificacion.
     - 0: No soporta la instruccion. 
     - 1: Soporta CPUID. 
+### Registros de Segmento
+Para hablar de los registros de segmentos primero hay que definir lo que es un segmento. Un segmento es un trozo de memoria que contienen un mismo tipo de informacion. Existen tres tipos de segmentos disponibles para el programador de aplicaciones:
+1. **Segmento de pila**
+2. **Segmento de codigo**
+3. **Segmento de datos**
+
+El procesador controla en cada instante seis segmentos a los que referencia a traves de los registros de segmento.
+La memoria esta formada por una informacion que consta de los siguientes campos:
+1. Selector: Son los 14 bits de mas peso del registro que referencia al segmento al que se quiere acceder y con ello se encuentra la base donde comienza el segmento, el limite o tamaño que tiene sus atributos. 
+2. Desplazamiento: El valor que se añade a la base del segmento para localizar la direccion que hay que acceder en él.
+
+Estos son los siguientes registros de segmento:
+1. CS: El registro CS, contiene en cada momento la informacion necesaria del segmento de instrucciones que esta ejecutando la CPU, es decir, el segmento en curso. El desplazamiento que hay que añadirle a la base para obtener la direccion de un dato dentro de este segmento proviene del registro EIP.
+2. SS: El registro SS, guarda el valor del selector del segmento de pila en curso. El registro ESP contiene el desplazamiento que debe añadirse a la base del segmento de pila para la cima por donde se cargan y descargan los datos.
+3. DS: El registro DS, soporta el valor del selector del segmento de datos y el desplazamiento viene especificado en el modo de direccionamiento utilizado por la instruccion para expresar operandos o resultados.
+
+#### Segmentacion en modo real 
+Cuando se trabaja en modo real un segmento queda definido por:
+- Base: La direccion de comienzo de 20 bits.
+- Desplazamiento: De tamaño de 16 bits.
+
+En modo real todos los segmentos estan especificados por una direccion logica compuesta por dos campos de 16 bits cada uno. 
+- Selector: Referencia a la base del segmento, la cual se deduce a partir del valor contenido en el registro de segmentos apropiado. 
+- Desplazamiento: Referencia nuevamente a los 16 bits de desplazamiento.
+
+El calculo final quedaria así:
+![alt text](image-2.png)
+Donde RS seria el segmento al que queremos ingresar.
+
+#### Segmentacion en modo protegido
+Cuando un procesador trabaja en modo protegido, un segmento queda caracterizado por tres parametros fundamentales que son comprobados automaticamente por el sistema de proteccion cada vez que se utiliza. Estos son:
+1. Base: Direccion lineal donde comienza el segmento. Esta formado por 32 bits que es la longitud en la memoria fisica que puede alcanzar un tamaño maximo de 4 GB
+2. Limite: Consta de 20 bits que determinan con exactitud el tamaño total del segmento usado por el programador y en el que reside informacion valida. 
+3. Atributos: se trata de un campo de 12 bits que proporciona las caracteristicas relevantes del segmento como
+    - Tipo de segmento, admitiendo la variante de lectura, estrictura, ejecutable o la combinacion de alguno de estos.
+    - Nivel de privilegio, que oscila entre 0 y 3. Es el grado de seguridad que tiene el contenido del segmento del sistema.
+    -  Indicador de presencia para saber si se encuentra en la memoria vitual o hay que ir a buscarlo. 
+
+Todos estos datos se encuentran dentro de una estrucura llamada descriptor de segmentos que ocupa 64 bits.
+Estos descriptores de segmento se encuentran dentro de una tabla llamada "tabla de descriptores" la cual se ubica en la memoria principal. 

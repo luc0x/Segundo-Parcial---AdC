@@ -104,3 +104,17 @@ El ciclo de instruccion se puede dividir en las etapas siguientes:
 2. Interpretacion del codigo de la instruccion. (**DEC**)
 3. Busqueda del datos u operando afectado por la instruccion. (**BO**)
 4. Generacion de ordenes al modulo que opera ese dato y actualizacion del IP. (**EJEC**)
+
+### Fase de busqueda
+En esta fase se realizan tres procesos:
+- Se calcula la direccion fisica de la instruccion.
+- Se da la orden de lectura RD.
+- Se carga el registro IR.
+
+### Fase de Ejecucion
+En esta fasde se realizan los siguiente procesos:
+- Se interpreta el codigo de la instruccion.
+- Se incrementa el IP.
+- Se realiza una busqueda del dato (RD) o se guarda el dato (WR).
+- Se genera una orden al modulo para que opere el dato.
+
