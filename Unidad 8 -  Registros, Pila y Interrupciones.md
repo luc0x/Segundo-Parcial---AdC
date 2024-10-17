@@ -134,3 +134,35 @@ Cuando un procesador trabaja en modo protegido, un segmento queda caracterizado 
 
 Todos estos datos se encuentran dentro de una estrucura llamada descriptor de segmentos que ocupa 64 bits.
 Estos descriptores de segmento se encuentran dentro de una tabla llamada "tabla de descriptores" la cual se ubica en la memoria principal. 
+
+## Pila 
+### Segmento de pila
+Zona en memoria de tamaño variable destinado a almacenar o a agrupar mediante el criterio de datos referenciados a la pila para determinadas instrucciones y procesos de ejecucion. 
+### Estructura de la pila
+La pila es una estructura de datos de tipo LIFO donde el primer elemento en entrar es el primero en salir. 
+### Registros asociados
+- SS (Registro segmento de stack)
+- SP (Registro puntero de pila)
+- BP (Registro puntero base)
+
+### Funciones basicas
+- Almacenar la direccion de retorno del IP y, eventualmente, el CS cuando ocurre una llamda a un procedimiento, tambien conocido como subrutina.
+- Almacenar el estado del procesador cuando se produce una interrupcion. Los registros que obligatoriamente apila son el CS, el IP y el estado de los flags. 
+- Pasar parametros a los procedimientos.
+
+El medio por el cual se accede a la pila es por los registros punteros SP y BP, dode SP contiene la direccion de la cima de la pila. Es decir, CS:SP.
+
+La escritura o lectura de datos de la pila es un procedimiento de software y se realiza decrementando e incrementando el SP. 
+
+La encargada de acceder a la pila es la CPU, ejecutando dos tipos de instrucciones que son:
+- PUSH: Decrementa el valor del SP y luego almacena la palabra en la pila. 
+- POP: Extrae una palabra de la pila y desafecta las pociones en memoria incrementando el SP.
+
+Las instrucciones que a causa de su ejecucion afectan a la pila son CALL, INT, RET o IRET. 
+- CALL y RET son instrucciones que sirven para invocar y dar el retorno a un procedimiento o subrutina.
+- INT e IRET cumplen la misma función cuando se invoca a una subrutina de interrupcion. 
+
+## Interrupciones 
+Las interrupciones y excepciones son acontecimientos que provocan un desvio en el flujo de la CPU. 
+Las **interrupciones** son acontecimientos externos que activan una patita del microprocesador que desvian el flujo.
+Las **excepciones** son internas y se producen como consecuencia de una anomalia dentro de la CPU durante la ejecucion de un programa. 
