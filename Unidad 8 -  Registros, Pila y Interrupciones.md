@@ -164,5 +164,34 @@ Las instrucciones que a causa de su ejecucion afectan a la pila son CALL, INT, R
 
 ## Interrupciones 
 Las interrupciones y excepciones son acontecimientos que provocan un desvio en el flujo de la CPU. 
-Las **interrupciones** son acontecimientos externos que activan una patita del microprocesador que desvian el flujo.
-Las **excepciones** son internas y se producen como consecuencia de una anomalia dentro de la CPU durante la ejecucion de un programa. 
+Este es un gran grupo que se puede dividir en tres subgrupos que son:
+- Excepciones: Interrupciones provocadas como consecuencia de anamalias que se producen y detectan durante la ejecucion de un programa.
+    - Faltas: Las que se detectan en el proceso de decodificiacion de la instruccion y son solucionables antes de la ejecucion.
+- Internas o de sofware: Interrupciones generadas por el propio programa al ejecutarse una instruccion "INT #" siendo # el numero de interrupcion que se quiere lanzar.
+- Externas o de hardware: Las interrupciones externas pueden ser clasificadas en dos:
+    - No Enmascarables NMI: Son siempre atendidas y consideradas de maxima importantcia y se deben a eventos que comprometen la capacidad de procesamiento del sistema. 
+    - Enmascarables: En cada ciclo de ejecucion ocurre una verificacion de si hay requerimientos de estas interrupciones. Pudiendo ser ignoradas si la bandera de habilitacion de interrupciones así lo indica. Al pasar a atender a ejecutar la interrupcion se deja al programa paralizado hasta que se termine a de atender la interrupcion.
+
+### Tabla de vector de interrupciones Modo Real
+Esta tabla contiene las direcciones de las interrupciones que realizan las funciones asociadas con las interrupciones. Un vector de interrupciones esta formado por la direccion de inicio de la rutina de servicio de la interrupcion ISR. 
+
+### Procedimiento 
+Cuando una interrupcion ocurre, el procesador en modo real realiza lo siguiente:
+1. El CPU pushea el registro de banderas al Stack
+2. El CPU pushea al stack la direccion de retorno.
+3. El CPU determina la causa de la interrupcion y toma los 4 bytes del vector de interrupcion de la direccion 0000:vector*4
+4. El CPU le tranfiere el control a la rutina especificada por la tabla de vectores. 
+5. Cuando la interrupcion desea regresar el control se ejecuta la instruccion IRET.
+
+### Tabla de descriptor de interrupciones IDT 
+Esta tabla esta formada por 256 entradas, las cuales cada una esta asociada a los diferentes tipos de interrupciones. Cada entrada apunta al comienzo de la subrutina. Esta tabla ocupa un segmento cuya base y limite estan contenidos en un registro llamdo IDTR. El tamaño maximo del IDT es de 1kb. 
+
+### Fases de atencion de una interrupcion o excepcion
+Las fases son las siguientes:
+1. Se comprueba si hay interrupciones pendientes para ser atendidas. Si existen varias interrupciones, se atiende por orden de pioridad.
+2. Al lanzar una interrupcion, se resguarda el entorno actual de la CPU para que al finalizar la interrupcion se retorne al mismo punto.
+3. Se busca la entrada correspondiente en la IDT y se cargan los registros CS e IP contenidos con los valores en dicha entrada, de esta forma, se obtiene el inicio de la rutina.
+4. La rutina de interrupcion finaliza con la instruccion IRET donde se restaura el contexto de la CPU, continuando con la ejecucion normal del programa. 
+
+### Interrupciones Externas
+Ocurren cuando un dispositivo externo se quiere comunicar con la CPU. Estos dispositivos generan una señal IRQ donde las mismas acceden a un controlador de interrupciones. Este controlador de interrupciones es el encargado de administrar las mismas salvo las no enmascarables. Las IRQ vienen acompañadas con un numero para saber luego que Subrutina de Atencion de interrupcion correspondera ejecutar para atender la misma. 
