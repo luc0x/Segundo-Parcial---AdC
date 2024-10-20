@@ -105,3 +105,73 @@ Estos contienen la direccion base y la direccion limite del segmento en el espac
 
 Intel agrega registros no programables que contienen los descriptores de segmentos. Esto permite que la traduccion se haga en un acceso. Estos registros no programables son registros ocultos de cache asociados a los registros de segmento, son registros de 64 bits donde se guarda el descriptor completo de forma ordenada. 
 ![alt text](image-7.png)
+
+## Paginacion en Modo Protegido
+Es una tecnica de manejo de memoria, en la cual el espacio en memoria se divide en secciones fisicas de igual tamaño, denominada paginacion. Los programas se dividen en unidades logicas llamadas paginas que tiene el mismo tamaño que los marcos de paginas. Las paginas permiten que las direcciones lineal sean reubicadas en direcciones fisicas especificas utilizando bloques de tamaño fisico. 
+
+El tamaño de las paginas es de 4KB en el 80386 pero en procesadores siguientes a esa generacion pueden ser de 4MB. La eleccion del tipo de pagina se realiza mediante el BIT PSE dentro del registro CR4. La activacion de este bit implica trabajar con paginas de 4MB mientras que en cero implica 4KB. 
+Existen dos tablas de descripciones de paginacion en dos niveles de acceso. 
+
+### Unidad de Paginacion
+Traduce las direcciones lineales de 32 bits en direcciones fisicas tambien de 32 bits.
+
+Por defecto no se encuentra habilitado. Si el SO la requiere, debe setear la bandera PG en el registro CR0.
+
+Las direcciones lineal coincide con la direccion fisica. 
+
+### Descriptor de paginas
+Las paginas en un procesador de 32 bits quedan definidas con dos parametros:
+- Base: Tiene 32 bits de los cuales los 12 ultimos deberan ser cero puesto que las paginas son de 4KB. Para definir la base se necesitan 20 bits que seran los mas significativos del descriptor.
+- Atributos: Son los 12 bits menos significativos de la base. 
+Debido a que el tamaño de las paginas es fijo, no existe un limite.
+
+### Traduccion de la direccion lineal a la fisica 
+Si trabajamos con paginas de 4KB se toma la direccion lineal y se divide en tres campos:
+- Indice en el Directorio de Tablas de Paginas (10 bits): determina la direccion fisica donde se encuentran los descriptores de Directorio de Paginas.
+- Indice en la Tabla de Paginas (10 bits): permite entrar a la tabla de paginas. 
+- Desplazamiento (12 bits): relativo al comienzo de la pagina en la que se encuentra la variable o el codigo que se esta direccionando. 
+
+El registro de control CR3 posee la direccion de la base de la tabla de Directorio de paginas, como cada indice tiene 10 bits dispondremos de 1024 entradas al directorio de paginas y como cada descriptor se obtiene leyendo 4 pocisiones de memoria la tabla tiene un tamaño de 4KB.
+
+Cuando trabajamos con paginas de 4MB, la direccion lineal que obtenemos de la segmetacion la dividimos en dos campos. Los 10 bits mas significativos corresponden al indice de directorio de Pagina y los 22 bits menos significativos corresponden al desplazamiento de pagina que nos permite movernos 4MB que tiene la pagina. En este caso la direccion fisica se obtiene con un solo acceso a memoria y la unica tabla tendra un tamaño de 4KB.
+
+### Formato de entradas del Directorio y de las Tablas de Paginas 
+![](https://wiki.osdev.org/images/1/1e/Page_directory_entry.png)
+De los 12 bits de atributos, los 3 bits mas significativos estan disponibles para que el programador de applicaciones pueda guardar informacion auxiliar acerca de la pagina. 
+Los 8 bits restantes pertenecen a los siguientes datos:
+- PS: Si el bit esta setado en uno el procesador trabaja con paginas de 4MB, mientras que si vale 0 el bit trabaja con paginas de 4KB.
+- D (Bit Sucio): si vale uno significa que la pagina fue escrita, en este caso, si se quiere eliminar de la memoria principal, se debe escribir la pagina en la memoria virtual.
+- A (Accedido):  Se pone en una cada vez que se accede a dicha pagina. Lo maneja la SO y sirve para llevar cuenta de la cantidad de accesos a la pagina.
+- PCD (Aceptacion de cache): indica si la pagina es cacheable.
+- PWT (Escritura obligada): Ademas de ser cacheble funciona en modo de escritura obligada.
+- U/S (Usuario/Supervisor): Indica el nivel de privilegio a dicha pagina.
+- R/W (Lectura/Escritura): si R/W=1 la pagina es accesible en lectura y escritura. Si es 0 es de solo lectura. 
+- P (Presencia): Si esta en 1 la pagina esta cargada en la memoria fisica. Si esta en 0 cuando se accede, la CPU genera una page fault que activa una rutina para que la SO traiga desde la memoria virtual la pagina.
+
+### Page Fault
+Es una excepcion arrojada cuando se requiere de una direccion que no se encuentra en la memoria en ese momento. 
+Pasos a seguir:
+1. Emite la excepcion. 
+2. Guarda el IP y la pila. 
+3. Determina que es un Page Fault y llama a la subrutina.
+4. Averigua que direccion virtual estaba buscando.
+5. Chequea que la direccion sea valida.
+6. Seleccion un marco si existe, si no existe, se libera mediante algoritmo.
+
+### Transhing and Anticipate Prediction
+Trashing: situacion en la que se utiliza una cantidad de recursos cada vez mayor, para hacer un trabajo cada vez menor.
+El hecho de que el procesador lleve y traiga paginas, genera una caida en el rendimiento.
+
+Anticipate Prediction: Algortimo basado en la idea de intentar adivinar que paginas van a ser utilizadas proximamente, basados en: historia reciente y el principio de cercania de referencia.
+
+### Translation Lookaside Buffer (TBL)
+Es una pequeña memoria cache la cual almacena traducciones de direcciones lineales a fisicas. 
+
+Cada traduccion requiere dos accesos a memoria: Directorio + Tabla de paginas. 
+
+Cada vez que la MMU tiene que hacer una traduccion:
+- La busca en la TBL. Si esta ya resuelta nos ahorramos dos accesos a memoria.
+- Si no esta resuelta, la resuelve y la guarda en la TBL. 
+
+Una TBL de 32 entradas proporciona 97% de aciertos.
+![alt text](image-8.png)
